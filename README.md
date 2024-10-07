@@ -1,6 +1,6 @@
-# Mean Field Multi-Agent Reinforcement Learning
+# Mean Field Multi-Agent Reinforcement Learning (MF-MARL)
 
-Implementation of **MF-Q** and **MF-AC** as presented in the paper [**Mean Field Multi-Agent Reinforcement Learning**](https://arxiv.org/pdf/1802.05438.pdf).
+This repository implements **Mean Field Q-Learning (MF-Q)** and **Mean Field Actor-Critic (MF-AC)**, based on the approach introduced in the paper [**Mean Field Multi-Agent Reinforcement Learning**](https://arxiv.org/pdf/1802.05438.pdf). These algorithms enable scalable learning in multi-agent environments by approximating interactions through mean-field theory.
 
 ## Table of Contents
 - [Examples](#examples)
