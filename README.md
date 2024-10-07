@@ -84,21 +84,46 @@ pip install -r requirements.txt
 
 Before running the Battle Game environment, you need to compile the MAgent platform. Follow the steps below for compilation and execution.
 
-### Compiling the Battle Game Environment
+## Compiling the MAgent Platform
 
-1. **Navigate to the Battle Model Directory:**
+Before running the Battle Game environment, you need to compile the MAgent platform, which is already included in this repository.
+
+### Compiling MAgent on Linux
+
+1. **Install Dependencies:**
+
+    ```bash
+    sudo apt-get update
+    sudo apt-get install cmake libboost-system-dev libjsoncpp-dev libwebsocketpp-dev
+    ```
+
+2. **Build MAgent:**
 
     ```bash
     cd examples/battle_model
-    ```
-
-2. **Run the Build Script:**
-
-    ```bash
     ./build.sh
     ```
 
-    This script compiles the necessary components for the Battle Game environment. Ensure that you have the required build tools installed on your system.
+### Compiling MAgent on OSX
+
+**Note:** There is an issue with Homebrew for installing `websocketpp`. Please refer to [Issue #17](https://github.com/geek-ai/MAgent/issues/17) for more details.
+
+1. **Install Dependencies Using Homebrew:**
+
+    ```bash
+    brew install cmake llvm boost@1.55
+    brew install jsoncpp argp-standalone
+    brew tap david-icracked/homebrew-websocketpp
+    brew install --HEAD david-icracked/websocketpp/websocketpp
+    brew link --force boost@1.55
+    ```
+
+2. **Build MAgent:**
+
+    ```bash
+    cd examples/battle_model
+    ./build.sh
+    ```
 
 ### Training Models for the Battle Game
 
@@ -150,3 +175,4 @@ If you find this project helpful in your research or work, please consider citin
 ```
 
 ---
+
