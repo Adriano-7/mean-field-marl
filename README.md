@@ -154,6 +154,29 @@ python3 train_battle.py --help
 
 This will display detailed information about the various parameters you can set during training, such as `--save_every`, `--update_every`, `--n_round`, `--render`, `--map_size`, and `--max_steps`.
 
+Here’s the updated section for your `battle.py` script in the README:
+
+---
+
+### Running the Battle Game Using Trained Models
+
+Once you have trained models for the Battle Game, you can use the `battle.py` script to simulate a match between two agents, with one agent using the **main model** and the other using the **opponent model**.
+
+#### Running the Battle Script
+
+To run the script and simulate battles between the agents:
+
+```bash
+python3 battle.py --algo ac --oppo mfq --n_round 50 --map_size 40 --max_steps 400 --idx 100 200
+```
+
+- `--algo`: Specifies the algorithm used by the **main agent** (e.g., `ac`, `mfac`, `mfq`, or `il`).
+- `--oppo`: Specifies the algorithm used by the **opponent agent** (e.g., `ac`, `mfac`, `mfq`, or `il`).
+- `--n_round`: The number of rounds (games) to simulate.
+- `--map_size`: Size of the gridworld map (default is 40x40).
+- `--max_steps`: Maximum number of steps per round.
+- `--idx`: Model checkpoints to load for both agents (default is `[100, 200]`).
+
 ## Paper Citation
 
 If you find this project helpful in your research or work, please consider citing the following paper:
