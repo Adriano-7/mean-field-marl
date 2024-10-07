@@ -22,7 +22,7 @@ parser.add_argument('-ac', '--act_rate', default=1.0, type=float)
 parser.add_argument('-ns', '--neighbor_size', default=4, type=int)
 parser.add_argument('-s', '--scenario', default='Ising.py',
                     help='Path of the scenario Python script.')
-parser.add_argument('-p', '--plot', default=0, type=int)
+parser.add_argument('-p', '--plot', default=1, type=int)
 args = parser.parse_args()
 
 # load scenario from script

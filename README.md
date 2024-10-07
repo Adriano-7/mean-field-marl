@@ -1,78 +1,139 @@
-# Mean Field Multi-Agent Reinforcement Learning 
+# Mean Field Multi-Agent Reinforcement Learning
 
-Implementation of MF-Q and MF-AC in the paper [Mean Field Multi-Agent Reinforcement Learning ](https://arxiv.org/pdf/1802.05438.pdf).
+Implementation of **MF-Q** and **MF-AC** as presented in the paper [**Mean Field Multi-Agent Reinforcement Learning**](https://arxiv.org/pdf/1802.05438.pdf).
 
-## Example
+## Table of Contents
+- [Examples](#examples)
+- [Code Structure](#code-structure)
+- [Installation](#installation)
+  - [Setting Up the Conda Environment](#setting-up-the-conda-environment)
+  - [Installing Dependencies](#installing-dependencies)
+- [Running the Ising Environment](#running-the-ising-environment)
+- [Compiling and Running the MAgent Platform](#compiling-and-running-the-magent-platform)
+  - [Compiling the Battle Game Environment](#compiling-the-battle-game-environment)
+  - [Training Models for the Battle Game](#training-models-for-the-battle-game)
+- [Paper Citation](#paper-citation)
 
-![image](https://github.com/mlii/mfrl/blob/master/resources/line.gif)
- 
- An 20x20 Ising model example under the low temperature.
+## Examples
 
-<img src="https://github.com/mlii/mfrl/blob/master/resources/battle.gif" width='300' height='300'/>
+### Ising Model Example
+A **20x20 Ising model** simulation under low temperature settings.
 
- A 40x40 Battle Game gridworld example with 128 agents, the blue one is MFQ, and the red one is IL.
- 
-## Code structure
+![Ising Model Simulation](resources/line.gif)
 
-- `main_MFQ_Ising.py`: contains code for running tabular based MFQ for Ising model.
+### Battle Game Gridworld Example
+A **40x40 Battle Game gridworld** with **128 agents**. In the visualization, the blue agents represent **MFQ**, and the red agents represent **IL**.
 
-- `./examples/`: contains scenarios for Ising Model and Battle Game (also models).
+<img src="resources/battle.gif" width="300" height="300" alt="Battle Game Simulation"/>
 
-- `battle.py`: contains code for running Battle Game with trained model
+## Code Structure
 
-- `train_battle.py`: contains code for training Battle Game models
+- **`main_MFQ_Ising.py`**: Runs the tabular-based MFQ algorithm for the Ising model.
+  
+- **`./examples/`**: Contains scenarios for the Ising Model and Battle Game, including the necessary models.
+  
+- **`battle.py`**: Executes the Battle Game using a trained model.
+  
+- **`train_battle.py`**: Scripts for training Battle Game models.
 
-## Compile Ising environment and run
+## Installation
 
-**Requirements**
-- `python==3.6.1`
-- `gym==0.9.2` (might work with later versions)
-- `matplotlib` if you would like to produce Ising model figures
+### Setting Up the Conda Environment
 
-## Compile MAgent platform and run
+Before compiling and running the project, it's recommended to create a dedicated Conda environment to manage dependencies.
 
-Before running Battle Game environment, you need to compile it. You can get more helps from: [MAgent](https://github.com/geek-ai/MAgent)
+1. **Create a Conda Environment:**
 
-**Steps for compiling**
+    ```bash
+    conda create --name tsi_mfrl python=3.6.1 -c conda-forge
+    ```
 
-```shell
-cd examples/battle_model
-./build.sh
+2. **Activate the Conda Environment:**
+
+    ```bash
+    conda activate tsi_mfrl
+    ```
+
+### Installing Dependencies
+
+With the Conda environment activated, install the required Python packages using `pip`:
+
+```bash
+pip install -r requirements.txt
 ```
 
-**Steps for training models under Battle Game settings**
+## Running the Ising Environment
 
-1. Add python path in your `~/.bashrc` or `~/.zshrc`:
+### Steps to Run
 
-    ```shell
-    vim ~/.zshrc
-    export PYTHONPATH=./examples/battle_model/python:${PYTHONPATH}
-    source ~/.zshrc
+1. **Navigate to the Project Directory:**
+
+    ```bash
+    cd path_to_your_project_directory
     ```
 
-2. Run training script for training (e.g. mfac):
+2. **Run the Ising Model Simulation:**
 
-    ```shell
-    python3 train_battle.py --algo mfac
+    ```bash
+    python main_MFQ_Ising.py
     ```
 
-    or get help:
+    This will execute the MFQ algorithm on the Ising model and generate the corresponding figures if `matplotlib` is installed.
 
-    ```shell
-    python3 train_battle.py --help
+## Compiling and Running the MAgent Platform
+
+Before running the Battle Game environment, you need to compile the MAgent platform. Follow the steps below for compilation and execution.
+
+### Compiling the Battle Game Environment
+
+1. **Navigate to the Battle Model Directory:**
+
+    ```bash
+    cd examples/battle_model
     ```
 
+2. **Run the Build Script:**
 
-## Paper citation
+    ```bash
+    ./build.sh
+    ```
 
-If you found it helpful, consider citing the following paper:
+    This script compiles the necessary components for the Battle Game environment. Ensure that you have the required build tools installed on your system.
 
-<pre>
+### Training Models for the Battle Game
 
+#### 1. Add Python Path
 
+To ensure that Python can locate the necessary modules, add the Battle Model's Python directory to your `PYTHONPATH`. You can do this by adding the following lines to your shell configuration file (`~/.bashrc` or `~/.zshrc`):
 
+```bash
+export PYTHONPATH=./examples/battle_model/python:${PYTHONPATH}
+source ~/.bashrc  # or source ~/.zshrc
+```
 
+#### 2. Run the Training Script
 
+To train models using a specific algorithm (e.g., **MFAC**), execute the training script with the appropriate arguments:
+
+```bash
+python3 train_battle.py --algo mfac
+```
+
+**Additional Options:**
+
+To view all available command-line options and arguments, use the `--help` flag:
+
+```bash
+python3 train_battle.py --help
+```
+
+This will display detailed information about the various parameters you can set during training, such as `--save_every`, `--update_every`, `--n_round`, `--render`, `--map_size`, and `--max_steps`.
+
+## Paper Citation
+
+If you find this project helpful in your research or work, please consider citing the following paper:
+
+```bibtex
 @InProceedings{pmlr-v80-yang18d,
   title = 	 {Mean Field Multi-Agent Reinforcement Learning},
   author = 	 {Yang, Yaodong and Luo, Rui and Li, Minne and Zhou, Ming and Zhang, Weinan and Wang, Jun},
@@ -86,4 +147,6 @@ If you found it helpful, consider citing the following paper:
   month = 	 {10--15 Jul},
   publisher = 	 {PMLR}
 }
-</pre>
+```
+
+---

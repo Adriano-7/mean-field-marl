@@ -17,13 +17,13 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--algo', type=str, choices={'ac', 'mfac', 'mfq', 'il'}, help='choose an algorithm from the preset', required=True)
-    parser.add_argument('--oppo', type=str, choices={'ac', 'mfac', 'mfq', 'il'}, help='indicate the opponent model')
-    parser.add_argument('--n_round', type=int, default=50, help='set the trainning round')
-    parser.add_argument('--render', action='store_true', help='render or not (if true, will render every save)')
+    parser.add_argument('--algo', type=str, choices={'ac', 'mfac', 'mfq', 'il'}, default='ac', help='choose an algorithm from the preset')  # default set to 'ac'
+    parser.add_argument('--oppo', type=str, choices={'ac', 'mfac', 'mfq', 'il'}, default='mfq', help='indicate the opponent model')  # default set to 'mfq'
+    parser.add_argument('--n_round', type=int, default=50, help='set the training round')
+    parser.add_argument('--render', action='store_true', default=True, help='render by default')  # default set to True
     parser.add_argument('--map_size', type=int, default=40, help='set the size of map')  # then the amount of agents is 64
     parser.add_argument('--max_steps', type=int, default=400, help='set the max steps')
-    parser.add_argument('--idx', nargs='*', required=True)
+    parser.add_argument('--idx', nargs='*', default=[100, 200], help='model index (default: [100, 200])')  # default set to [100, 200]
 
     args = parser.parse_args()
 

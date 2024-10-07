@@ -10,6 +10,7 @@ import magent
 from examples.battle_model.algo import spawn_ai
 from examples.battle_model.algo import tools
 from examples.battle_model.senario_battle import play
+from tensorflow.python.client import device_lib
 
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -33,11 +34,11 @@ def linear_decay(epoch, x, y):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--algo', type=str, choices={'ac', 'mfac', 'mfq', 'il'}, help='choose an algorithm from the preset', required=True)
+    parser.add_argument('--algo', type=str, default='ac', choices={'ac', 'mfac', 'mfq', 'il'}, help='choose an algorithm from the preset')
     parser.add_argument('--save_every', type=int, default=10, help='decide the self-play update interval')
     parser.add_argument('--update_every', type=int, default=5, help='decide the udpate interval for q-learning, optional')
     parser.add_argument('--n_round', type=int, default=2000, help='set the trainning round')
-    parser.add_argument('--render', action='store_true', help='render or not (if true, will render every save)')
+    parser.add_argument('--render', action='store_true', default=True, help='render or not (if true, will render every save)')
     parser.add_argument('--map_size', type=int, default=40, help='set the size of map')  # then the amount of agents is 64
     parser.add_argument('--max_steps', type=int, default=400, help='set the max steps')
 
@@ -50,6 +51,7 @@ if __name__ == '__main__':
 
     tf_config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=False)
     tf_config.gpu_options.allow_growth = True
+
 
     log_dir = os.path.join(BASE_DIR,'data/tmp'.format(args.algo))
     model_dir = os.path.join(BASE_DIR, 'data/models/{}'.format(args.algo))
