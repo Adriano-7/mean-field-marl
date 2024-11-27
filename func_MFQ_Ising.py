@@ -160,7 +160,7 @@ def plot_order_parameter_vs_temperature():
     scenario = ising_model.load(args.scenario).Scenario()
     
     # Temperature range
-    temperatures = np.linspace(0.1, 3.0, 30)
+    temperatures = np.linspace(0.1, 3.0, 20)
     
     # Collect order parameters
     order_parameters = []
