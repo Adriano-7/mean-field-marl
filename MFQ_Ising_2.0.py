@@ -3,11 +3,13 @@ import sys
 import argparse
 import numpy as np
 import matplotlib.pyplot as plt
+import time
 
 sys.path.insert(1, os.path.join(sys.path[0], '..'))
 import examples.ising_model as ising_model
 from examples.ising_model.multiagent.environment import IsingMultiAgentEnv
 
+np.random.seed(13)
 
 def parse_arguments():
     """
@@ -23,7 +25,6 @@ def parse_arguments():
     parser.add_argument('-ac', '--act_rate', default=1.0, type=float)
     parser.add_argument('-ns', '--neighbor_size', default=4, type=int)
     parser.add_argument('-s', '--scenario', default='Ising.py', help='Path of the scenario Python script.')
-    parser.add_argument('-p', '--plot', default=1, type=int)    
     return parser.parse_args()
 
 
@@ -68,7 +69,7 @@ def boltzmann_exploration(Q, temperature, state, agent_index, n_actions):
     return np.random.choice(n_actions, 1, p=action_probs)[0]
 
 
-def run_simulation_for_temperature(scenario, args, temperature, time_steps=10000):
+def MFQ_Simulation(scenario, args, temperature, time_steps=10000, save_plot=False, folder=None):
     """
     Run a single simulation for a given temperature and return the equilibrium order parameter.
     
@@ -80,12 +81,11 @@ def run_simulation_for_temperature(scenario, args, temperature, time_steps=10000
     Returns:
     float: Equilibrium order parameter
     """
-    # Seed for reproducibility
-    np.random.seed(13)
-    
+
     # Setup environment
     env, n_agents, n_states, n_actions, dim_Q_state = setup_environment(args, scenario)
-    
+
+
     # Reward target matrix
     reward_target = np.array([
         [2, -2],
@@ -104,19 +104,24 @@ def run_simulation_for_temperature(scenario, args, temperature, time_steps=10000
     # Track maximum order parameter
     max_order = 0.0
     mse = 0
+
+    if save_plot:
+        plt.figure(2)
+        plt.ion()
+        ising_plot = np.zeros((int(np.sqrt(n_agents)), int(np.sqrt(n_agents))), dtype=np.int32)
+        im = plt.imshow(ising_plot, cmap='gray', vmin=0, vmax=1, interpolation='none')
+        im.set_data(ising_plot)
+
+
     
     # Fixed simulation parameters
     current_t = temperature
-    decay_rate = 0.99
-    decay_gap = 2000
-    learning_rate = args.learning_rate
-    act_rate = args.act_rate
     
     # Main simulation loop
     for t in range(time_steps):
         # Decay temperature (optional, can be commented out if not needed)
-        if t % decay_gap == 0:
-            current_t *= decay_rate
+        if t % args.decay_gap == 0:
+            current_t *= args.decay_rate
         
         # Select actions for all agents using Boltzmann exploration
         action = np.array([
@@ -124,28 +129,34 @@ def run_simulation_for_temperature(scenario, args, temperature, time_steps=10000
             for i in range(n_agents)
         ])
         
+        display = action.reshape((int(np.sqrt(n_agents)), -1))
+
         # Take step in environment
         obs_, reward, done, order_param, ups, downs = env.step(np.expand_dims(action, axis=1))
         obs_ = np.stack(obs_)
         
         # Update Q-values
         mse=0
-        act_group = np.random.choice(n_agents, int(act_rate * n_agents), replace=False)
+        act_group = np.random.choice(n_agents, int(args.act_rate * n_agents), replace=False)
         
         for i in act_group:
             obs_flat = np.count_nonzero(obs[i] == 1)
-            Q[i, obs_flat, action[i]] += learning_rate * (
+            Q[i, obs_flat, action[i]] += args.learning_rate * (
                 reward[i] - Q[i, obs_flat, action[i]]
             )
             mse += np.power((Q[i, obs_flat, action[i]] - reward_target[obs_flat, action[i]]), 2)
         
         mse /= n_agents
-        
         obs = obs_
-        
+
         # Track maximum order parameter
+        if save_plot and order_param > max_order:
+            plt.figure(2)
+            im.set_data(display)
+            plt.savefig(folder + f'{t}.png')
+
         max_order = max(max_order, order_param)
-        
+            
         # Optional early stopping if needed
         if t > 1000 and abs(max_order - order_param) < 0.001:
             break
@@ -171,7 +182,7 @@ def plot_order_parameter_vs_temperature():
     
     # Run simulations for different temperatures
     for temp in temperatures:
-        order_param = run_simulation_for_temperature(scenario, args, temp)[0]
+        order_param = MFQ_Simulation(scenario, args, temp)[0]
         order_parameters.append(order_param)
         print(f"Temperature: {temp}, Order Parameter: {order_param}")
     
@@ -197,7 +208,7 @@ def plot_order_parameter_vs_temperature():
                delimiter=',', 
                header='Temperature,OrderParameter')
 
-def plot_op_and_mse_vs_timestep(temp):
+def plot_op_and_mse_vs_timestep():
     """
     Plot order parameter and mse as a function of temperature.
     """
@@ -217,7 +228,7 @@ def plot_op_and_mse_vs_timestep(temp):
     # Run simulations for different temperatures
     for timestep in timesteps:
         timestep = int(timestep)
-        order_param, mse = run_simulation_for_temperature(scenario, args, temp, timestep)
+        order_param, mse = MFQ_Simulation(scenario, args, args.temperature, timestep)
         order_parameters.append(order_param)
         mses.append(mse)
         print(f"Timestep: {timestep}, Order Parameter: {order_param}, MSE: {mse}")
@@ -239,14 +250,35 @@ def plot_op_and_mse_vs_timestep(temp):
     plt.savefig(os.path.join(output_folder, f'order_parameter_and_mse_vs_timesteps_T{temp}.png'))
     plt.close()
 
-def main():
+def plot_simulation_states():
+    """
+    Plot the states of the simulation.
+    """
+    # Parse arguments
+    args = parse_arguments()
+    
+    # Load scenario
+    scenario = ising_model.load(args.scenario).Scenario()
+    temperature = args.temperature
+    
+    folder = f"./ising_figs/gifs/Temp_{temperature}_Time_{time.strftime('%Y%m%d-%H%M%S')}/"
+    os.makedirs(folder)
+    
+    MFQ_Simulation(scenario, args, temperature, time_steps=1200, save_plot=True, folder=folder)
+
+    import imageio
+    import glob
+
+    images = []
+    for filename in sorted(glob.glob(f"{folder}/*.png")):
+        images.append(imageio.imread(filename))
+    imageio.mimsave(f"{folder}/animation.gif", images, duration=0.1)
+    
+
+if __name__ == "__main__":
     """
     Main entry point for plotting order parameter vs temperature.
     """
     #plot_order_parameter_vs_temperature()
-    args = parse_arguments()
-    plot_op_and_mse_vs_timestep(args.temperature)
-
-
-if __name__ == "__main__":
-    main()
+    #plot_op_and_mse_vs_timestep()
+    plot_simulation_states()
