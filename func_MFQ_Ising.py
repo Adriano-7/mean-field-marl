@@ -236,7 +236,7 @@ def plot_op_and_mse_vs_timestep(temp):
     output_folder = "./ising_figs/"
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
-    plt.savefig(os.path.join(output_folder, f'order_parameter_and_mse_vs_timesteps_T{temp}-2.png'))
+    plt.savefig(os.path.join(output_folder, f'order_parameter_and_mse_vs_timesteps_T{temp}.png'))
     plt.close()
 
 def main():
