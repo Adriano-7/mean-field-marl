@@ -15,9 +15,8 @@ def parse_arguments():
     """
     parser = argparse.ArgumentParser(description="Ising Model Multi-Agent Reinforcement Learning Simulation")
     parser.add_argument('-n', '--num_agents', default=100, type=int)
-    parser.add_argument('-t', '--temperature', default=1, type=float)
     parser.add_argument('-epi', '--episode', default=1, type=int)
-    parser.add_argument('-ts', '--time_steps', default=10000, type=int)
+    parser.add_argument('-t', '--temperature', default=1, type=float)
     parser.add_argument('-lr', '--learning_rate', default=0.1, type=float)
     parser.add_argument('-dr', '--decay_rate', default=0.99, type=float)
     parser.add_argument('-dg', '--decay_gap', default=2000, type=int)
@@ -69,7 +68,7 @@ def boltzmann_exploration(Q, temperature, state, agent_index, n_actions):
     return np.random.choice(n_actions, 1, p=action_probs)[0]
 
 
-def run_simulation_for_temperature(scenario, args, temperature):
+def run_simulation_for_temperature(scenario, args, temperature, time_steps=10000):
     """
     Run a single simulation for a given temperature and return the equilibrium order parameter.
     
@@ -104,6 +103,7 @@ def run_simulation_for_temperature(scenario, args, temperature):
     
     # Track maximum order parameter
     max_order = 0.0
+    mse = 0
     
     # Fixed simulation parameters
     current_t = temperature
@@ -113,7 +113,7 @@ def run_simulation_for_temperature(scenario, args, temperature):
     act_rate = args.act_rate
     
     # Main simulation loop
-    for t in range(args.time_steps):
+    for t in range(time_steps):
         # Decay temperature (optional, can be commented out if not needed)
         if t % decay_gap == 0:
             current_t *= decay_rate
@@ -129,6 +129,7 @@ def run_simulation_for_temperature(scenario, args, temperature):
         obs_ = np.stack(obs_)
         
         # Update Q-values
+        mse=0
         act_group = np.random.choice(n_agents, int(act_rate * n_agents), replace=False)
         
         for i in act_group:
@@ -136,6 +137,9 @@ def run_simulation_for_temperature(scenario, args, temperature):
             Q[i, obs_flat, action[i]] += learning_rate * (
                 reward[i] - Q[i, obs_flat, action[i]]
             )
+            mse += np.power((Q[i, obs_flat, action[i]] - reward_target[obs_flat, action[i]]), 2)
+        
+        mse /= n_agents
         
         obs = obs_
         
@@ -146,7 +150,7 @@ def run_simulation_for_temperature(scenario, args, temperature):
         if t > 1000 and abs(max_order - order_param) < 0.001:
             break
     
-    return max_order
+    return max_order, mse
 
 
 def plot_order_parameter_vs_temperature():
@@ -167,7 +171,7 @@ def plot_order_parameter_vs_temperature():
     
     # Run simulations for different temperatures
     for temp in temperatures:
-        order_param = run_simulation_for_temperature(scenario, args, temp)
+        order_param = run_simulation_for_temperature(scenario, args, temp)[0]
         order_parameters.append(order_param)
         print(f"Temperature: {temp}, Order Parameter: {order_param}")
     
@@ -193,12 +197,55 @@ def plot_order_parameter_vs_temperature():
                delimiter=',', 
                header='Temperature,OrderParameter')
 
+def plot_op_and_mse_vs_timestep(temp):
+    """
+    Plot order parameter and mse as a function of temperature.
+    """
+    # Parse arguments
+    args = parse_arguments()
+    
+    # Load scenario
+    scenario = ising_model.load(args.scenario).Scenario()
+    
+    # Temperature range
+    timesteps = np.linspace(1, 1500, 100)
+    
+    # Collect order parameters
+    order_parameters = []
+    mses = []
+    
+    # Run simulations for different temperatures
+    for timestep in timesteps:
+        timestep = int(timestep)
+        order_param, mse = run_simulation_for_temperature(scenario, args, temp, timestep)
+        order_parameters.append(order_param)
+        mses.append(mse)
+        print(f"Timestep: {timestep}, Order Parameter: {order_param}, MSE: {mse}")
+    
+    # Plot the results (order param vs timesteps) with the green line being the mse and blue line being the order parameter
+    plt.figure(figsize=(10, 6))
+    plt.plot(timesteps, order_parameters, 'bo-')
+    plt.plot(timesteps, mses, 'go-')
+    plt.xlabel('Timesteps', fontsize=12)
+    plt.ylabel('Order Parameter/MSE', fontsize=12)
+    plt.title('Order Parameter and MSE vs Timesteps in Mean Field Q-Learning Ising Model', fontsize=14)
+    plt.grid(True, linestyle='--', alpha=0.7)
+    plt.tight_layout()
+
+    # Save the plot
+    output_folder = "./ising_figs/"
+    if not os.path.exists(output_folder):
+        os.makedirs(output_folder)
+    plt.savefig(os.path.join(output_folder, f'order_parameter_and_mse_vs_timesteps_T{temp}-2.png'))
+    plt.close()
 
 def main():
     """
     Main entry point for plotting order parameter vs temperature.
     """
-    plot_order_parameter_vs_temperature()
+    #plot_order_parameter_vs_temperature()
+    args = parse_arguments()
+    plot_op_and_mse_vs_timestep(args.temperature)
 
 
 if __name__ == "__main__":
