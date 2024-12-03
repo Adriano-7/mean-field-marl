@@ -1,6 +1,6 @@
 # Mean Field Multi-Agent Reinforcement Learning (MF-MARL)
 
-This repository implements **Mean Field Q-Learning (MF-Q)** and **Mean Field Actor-Critic (MF-AC)**, based on the approach introduced in the paper [**Mean Field Multi-Agent Reinforcement Learning**](https://arxiv.org/pdf/1802.05438.pdf). These algorithms enable scalable learning in multi-agent environments by approximating interactions through mean-field theory.
+This repository implements **Mean Field Q-Learning (MF-Q)** and **Mean Field Actor-Critic (MF-AC)**, based on the approach introduced in the paper [**Mean Field Multi-Agent Reinforcement Learning**](https://arxiv.org/pdf/1802.05438.pdf). These algorithms enable scalable learning in multi-agent environments by approximating interactions through mean-field theory. We also make use of the approach introduced in the paper [**VAST: Value Function Factorization with Variable Agent Sub-Teams**](https://openreview.net/pdf?id=hyJKKIhfxxT) to train agents in a "Gaussian Squeeze" environment.
 
 ## Table of Contents
 - [Examples](#examples)
@@ -36,7 +36,7 @@ A **40x40 Battle Game gridworld** with **128 agents**. In the visualization, the
   
 - **`train_battle.py`**: Scripts for training Battle Game models.
 
-## Installation
+## Installation and Running Ising Model and Battle Game
 
 ### Setting Up the Conda Environment
 
@@ -45,13 +45,13 @@ Before compiling and running the project, it's recommended to create a dedicated
 1. **Create a Conda Environment:**
 
     ```bash
-    conda create --name tsi_mfrl python=3.6.1 -c conda-forge
+    conda create --name tsi_mfrl_btl python=3.6.1 -c conda-forge
     ```
 
 2. **Activate the Conda Environment:**
 
     ```bash
-    conda activate tsi_mfrl
+    conda activate tsi_mfrl_btl
     ```
 
 ### Installing Dependencies
@@ -59,7 +59,7 @@ Before compiling and running the project, it's recommended to create a dedicated
 With the Conda environment activated, install the required Python packages using `pip`:
 
 ```bash
-pip install -r requirements.txt
+pip install -r requirements_Ising_Battle.txt
 ```
 
 ## Running the Ising Environment
@@ -80,6 +80,7 @@ pip install -r requirements.txt
 
     This will execute the MFQ algorithm on the Ising model and generate the corresponding figures if `matplotlib` is installed.
 
+## Running the Battle Environment
 ## Compiling and Running the MAgent Platform
 
 Before running the Battle Game environment, you need to compile the MAgent platform. Follow the steps below for compilation and execution.
@@ -176,6 +177,56 @@ python3 battle.py --algo ac --oppo mfq --n_round 50 --map_size 40 --max_steps 40
 - `--map_size`: Size of the gridworld map (default is 40x40).
 - `--max_steps`: Maximum number of steps per round.
 - `--idx`: Model checkpoints to load for both agents (default is `[100, 200]`).
+
+## Training and Running the Gaussian Squeeze Environment
+
+For this you'll need to start by creating a new conda environment and installing the required dependencies.
+
+### Setting Up the Conda Environment
+
+1. **Create a Conda Environment:**
+
+    ```bash
+    conda create --name tsi_mfrl_gaussian python=3.8.18 -c conda-forge
+    ```
+
+2. **Activate the Conda Environment:**
+
+    ```bash
+    conda activate tsi_mfrl_gaussian
+    ```
+
+### Installing Dependencies
+
+With the Conda environment activated, install the required Python packages using `pip`:
+
+```bash
+pip install -r requirements_Gaussian.txt
+```
+
+### Running the Gaussian Squeeze Environment
+
+To train models for the Gaussian Squeeze environment, use the train_gaussian.py script with the following arguments:
+
+```bash	
+python train_gaussian.py {algorithm} GaussianSqueeze-{Number_of_Agents} 
+```
+
+For example:
+
+```bash
+	python train_gaussian.py VAST-QTRAN GaussianSqueeze-200 0.25
+	python train_gaussian.py VAST-QTRAN GaussianSqueeze-200 0.5
+	python train_gaussian.py QMIX GaussianSqueeze-200
+	python train_gaussian.py QTRAN GaussianSqueeze-200
+	python train_gaussian.py IL GaussianSqueeze-200
+```
+
+After training the models, you can plot the results using the gaussian.py script:
+
+```bash
+python gaussian.py GaussianSqueeze-{Number_of_Agents} S
+```
 
 ## Paper Citation
 
