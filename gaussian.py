@@ -6,9 +6,9 @@ from os.path import join
 from examples.gaussian_model.settings import params
 
 DOMAIN_DATA = {
-    "GaussianSqueeze-200": (200, "performance", 1, 270, "QTRAN"),
-    "GaussianSqueeze-400": (400, "performance", 1, 270, "QTRAN"),
-    "GaussianSqueeze-800": (800, "performance", 1, 270, "QTRAN"),
+    "GaussianSqueeze-200": (200, "performance", 1, 10000, "QTRAN"),
+    "GaussianSqueeze-400": (400, "performance", 1, 10000, "QTRAN"),
+    "GaussianSqueeze-800": (800, "performance", 1, 10000, "QTRAN"),
 }
 
 PREFIX = {
@@ -22,8 +22,7 @@ domain_name = sys.argv[1]
 evaluation_type = sys.argv[2]
 show_legend = True
 #show_legend = len(sys.argv) > 3
-if domain_name.startswith("GaussianSqueeze"):
-    domain_short = "gaussiansqueeze_"
+domain_short = "gaussiansqueeze_"
 nr_agents = None
 y_label = None
 plot.figure(figsize=(15, 6))
@@ -54,7 +53,7 @@ params["y_label"] = y_label
 params["data_length"] = data_length
 params["x_axis_values"] = [i*episodes_per_epoch*episode_length for i in range(params["data_length"])]
 
-approaches = [("b", 0.25, "VAST-QTRAN_"),("darkblue", 0.5, "VAST-QTRAN_"), ("darkorange", None, "QMIX"),("r", None, "QTRAN"), ("purple", None, "IL"), ("green", None, "MFAC")]
+approaches = [("b", 0.25, "VAST-QTRAN_"),("darkblue", 0.5, "VAST-QTRAN_"), ("darkorange", None, "QMIX"),("r", None, "QTRAN"), ("purple", None, "IL")]
 if evaluation_type == "F":
     approaches = [("magenta", 0.5, "VAST-IL_"), ("c", 0.5, "VAST-VDN_"), ("g", 0.5, "VAST-QMIX_"), ("darkblue", 0.5, "VAST-QTRAN_")]
 if evaluation_type == "A":
@@ -69,7 +68,6 @@ ALGORITHM_LABELS = {
     "QMIX": "QMIX",
     "QTRAN": "QTRAN",
     "IL": "IL",
-    "MFAC": "MFAC"
 }
 
 if evaluation_type == "F":
