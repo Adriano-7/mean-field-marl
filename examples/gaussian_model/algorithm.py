@@ -1,6 +1,5 @@
 import examples.gaussian_model.controllers.controller as controller
 import examples.gaussian_model.controllers.actor_critic as actor_critic
-import examples.gaussian_model.controllers.mf_actor_critic as mf_actor_critic
 import examples.gaussian_model.controllers.value_learner as value_learner
 import examples.gaussian_model.controllers.vast as vast
 
@@ -10,9 +9,6 @@ def make_controller(params):
         params["nr_subteams"] = 1
         params["critic_learner"] = None
         return actor_critic.ActorCritic(params)
-    if algorithm_name == "MFAC":
-        params["nr_subteams"] = 1
-        params["critic_learner"] = value_learner.MFTRAN(params)
         return mf_actor_critic.MFAC(params)
     if algorithm_name == "QMIX":
         params["nr_subteams"] = 1

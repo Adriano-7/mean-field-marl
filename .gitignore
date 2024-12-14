@@ -1,3 +1,4 @@
-data/
+data/models/
+data/tmp/
 *.DS_Store
 *__pycache__/

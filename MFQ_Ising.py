@@ -82,11 +82,8 @@ def MFQ_Simulation(scenario, args, temperature, time_steps=10000, save_plot=Fals
     float: Equilibrium order parameter
     """
 
-    # Setup environment
     env, n_agents, n_states, n_actions, dim_Q_state = setup_environment(args, scenario)
 
-
-    # Reward target matrix
     reward_target = np.array([
         [2, -2],
         [1, -1],
@@ -95,13 +92,10 @@ def MFQ_Simulation(scenario, args, temperature, time_steps=10000, save_plot=Fals
         [-2, 2]
     ])
     
-    # Reset environment
     obs = np.stack(env.reset())
     
-    # Initialize Q-values
     Q = np.zeros((n_agents, dim_Q_state, n_actions))
     
-    # Track maximum order parameter
     max_order = 0.0
     mse = 0
 
@@ -112,18 +106,12 @@ def MFQ_Simulation(scenario, args, temperature, time_steps=10000, save_plot=Fals
         im = plt.imshow(ising_plot, cmap='gray', vmin=0, vmax=1, interpolation='none')
         im.set_data(ising_plot)
 
-
-    
-    # Fixed simulation parameters
     current_t = temperature
     
-    # Main simulation loop
     for t in range(time_steps):
-        # Decay temperature (optional, can be commented out if not needed)
         if t % args.decay_gap == 0:
             current_t *= args.decay_rate
         
-        # Select actions for all agents using Boltzmann exploration
         action = np.array([
             boltzmann_exploration(Q, current_t, np.count_nonzero(obs[i] == 1), i, n_actions)
             for i in range(n_agents)
@@ -131,11 +119,9 @@ def MFQ_Simulation(scenario, args, temperature, time_steps=10000, save_plot=Fals
         
         display = action.reshape((int(np.sqrt(n_agents)), -1))
 
-        # Take step in environment
         obs_, reward, done, order_param, ups, downs = env.step(np.expand_dims(action, axis=1))
         obs_ = np.stack(obs_)
         
-        # Update Q-values
         mse=0
         act_group = np.random.choice(n_agents, int(args.act_rate * n_agents), replace=False)
         
@@ -149,7 +135,6 @@ def MFQ_Simulation(scenario, args, temperature, time_steps=10000, save_plot=Fals
         mse /= n_agents
         obs = obs_
 
-        # Track maximum order parameter
         if save_plot and order_param > max_order:
             plt.figure(2)
             im.set_data(display)
@@ -157,7 +142,6 @@ def MFQ_Simulation(scenario, args, temperature, time_steps=10000, save_plot=Fals
 
         max_order = max(max_order, order_param)
             
-        # Optional early stopping if needed
         if t > 1000 and abs(max_order - order_param) < 0.001:
             break
     
@@ -168,25 +152,17 @@ def plot_order_parameter_vs_temperature():
     """
     Plot order parameter as a function of temperature.
     """
-    # Parse arguments
     args = parse_arguments()
-    
-    # Load scenario
+
     scenario = ising_model.load(args.scenario).Scenario()
-    
-    # Temperature range
     temperatures = np.linspace(0.1, 3.0, 20)
-    
-    # Collect order parameters
     order_parameters = []
     
-    # Run simulations for different temperatures
     for temp in temperatures:
         order_param = MFQ_Simulation(scenario, args, temp)[0]
         order_parameters.append(order_param)
         print(f"Temperature: {temp}, Order Parameter: {order_param}")
     
-    # Plot the results
     plt.figure(figsize=(10, 6))
     plt.plot(temperatures, order_parameters, 'bo-')
     plt.xlabel('Temperature', fontsize=12)
@@ -195,14 +171,12 @@ def plot_order_parameter_vs_temperature():
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.tight_layout()
     
-    # Save the plot
     output_folder = "./ising_figs/"
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
     plt.savefig(os.path.join(output_folder, 'order_parameter_vs_temperature.png'))
     plt.close()
 
-    # Save data for potential further analysis
     np.savetxt(os.path.join(output_folder, 'order_parameter_data.csv'), 
                np.column_stack((temperatures, order_parameters)), 
                delimiter=',', 
@@ -212,20 +186,15 @@ def plot_op_and_mse_vs_timestep():
     """
     Plot order parameter and mse as a function of temperature.
     """
-    # Parse arguments
     args = parse_arguments()
     
-    # Load scenario
     scenario = ising_model.load(args.scenario).Scenario()
     
-    # Temperature range
     timesteps = np.linspace(1, 1500, 100)
     
-    # Collect order parameters
     order_parameters = []
     mses = []
     
-    # Run simulations for different temperatures
     for timestep in timesteps:
         timestep = int(timestep)
         order_param, mse = MFQ_Simulation(scenario, args, args.temperature, timestep)
@@ -243,7 +212,6 @@ def plot_op_and_mse_vs_timestep():
     plt.grid(True, linestyle='--', alpha=0.7)
     plt.tight_layout()
 
-    # Save the plot
     output_folder = "./ising_figs/"
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -254,10 +222,8 @@ def plot_simulation_states():
     """
     Plot the states of the simulation.
     """
-    # Parse arguments
     args = parse_arguments()
     
-    # Load scenario
     scenario = ising_model.load(args.scenario).Scenario()
     temperature = args.temperature
     
@@ -277,7 +243,7 @@ def plot_simulation_states():
 
 if __name__ == "__main__":
     """
-    Main entry point for plotting order parameter vs temperature.
+    Main entry point for plotting order parameter vs temperature. Discomment the the function of the plot you want to run.
     """
     #plot_order_parameter_vs_temperature()
     #plot_op_and_mse_vs_timestep()
