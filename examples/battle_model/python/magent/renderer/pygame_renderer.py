@@ -108,7 +108,7 @@ class PyGameRenderer(BaseRenderer):
         new_data = None
 
         need_static_update = True
-        #show_grid = False
+        show_grid = True
         animation_progress = 0
         
         grid_map = np.zeros((resolution[0], resolution[1], 3), dtype=np.int16)
@@ -126,10 +126,10 @@ class PyGameRenderer(BaseRenderer):
                     pygame.quit()
                     done = True
                 elif event.type == pygame.KEYDOWN:
-                    #if event.key == pygame.K_g:
-                    #    show_grid = not show_grid
-                    #else:
-                    #    triggered = server.keydown(frame_id, event.key, mouse_x, mouse_y)
+                    if event.key == pygame.K_g:
+                        show_grid = not show_grid
+                    else:
+                        triggered = server.keydown(frame_id, event.key, mouse_x, mouse_y)
                     triggered = server.keydown(frame_id, event.key, mouse_x, mouse_y)
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 4 or event.button == 5:
@@ -209,30 +209,30 @@ class PyGameRenderer(BaseRenderer):
 
             canvas.fill(background_rgb)
 
-            #if show_grid:
-            #    if need_static_update or True:
-            #        grids = pygame.Surface(resolution)
-            #        grids.set_alpha(grid_rgba[1])
-            #        grids.fill(background_rgb)
-            #
-            #        for i in range(x_range[0], x_range[1] + 1):
-            #            draw_line(
-            #                canvas, grid_rgba[0],
-            #                (i * grid_size - view_position[0], max(0, view_position[1]) - view_position[1]),
-            #                (
-            #                    i * grid_size - view_position[0],
-            #                    min(view_position[1] + resolution[1], map_size[1] * grid_size) - view_position[1]
-            #                )
-            #            )
-            #        for i in range(y_range[0], y_range[1] + 1):
-            #            draw_line(
-            #                canvas, grid_rgba[0],
-            #                (max(0, view_position[0]) - view_position[0], i * grid_size - view_position[1]),
-            #                (
-            #                    min(view_position[0] + resolution[0], map_size[0] * grid_size) - view_position[0],
-            #                    i * grid_size - view_position[1]
-            #                )
-            #            )
+            if show_grid:
+                if need_static_update or True:
+                    grids = pygame.Surface(resolution)
+                    grids.set_alpha(grid_rgba[1])
+                    grids.fill(background_rgb)
+            
+                    for i in range(x_range[0], x_range[1] + 1):
+                        draw_line(
+                            canvas, grid_rgba[0],
+                            (i * grid_size - view_position[0], max(0, view_position[1]) - view_position[1]),
+                            (
+                                i * grid_size - view_position[0],
+                                min(view_position[1] + resolution[1], map_size[1] * grid_size) - view_position[1]
+                            )
+                        )
+                    for i in range(y_range[0], y_range[1] + 1):
+                        draw_line(
+                            canvas, grid_rgba[0],
+                            (max(0, view_position[0]) - view_position[0], i * grid_size - view_position[1]),
+                            (
+                                min(view_position[0] + resolution[0], map_size[0] * grid_size) - view_position[0],
+                                i * grid_size - view_position[1]
+                            )
+                        )
 
             if new_data is None or animation_progress > animation_total + animation_stop:
                 buffered_new_data = server.get_data(
